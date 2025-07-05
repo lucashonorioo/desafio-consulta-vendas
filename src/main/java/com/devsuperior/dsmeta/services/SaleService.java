@@ -5,8 +5,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
+import com.devsuperior.dsmeta.dto.SaleSummaryDTO;
+import com.devsuperior.dsmeta.projection.SaleSumProjection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,6 +62,42 @@ public class SaleService {
 		Page<Sale> sales = repository.findRelatorio(pageable, dataInicial, dataFinal, nomeVendedor);
 		Page<SaleMinDTO> saleMinDTOS = sales.map( s -> new SaleMinDTO(s));
 
+		return saleMinDTOS;
+	}
+
+	public List<SaleSummaryDTO> findSumario(String dataInicialString, String dataFinalString){
+		LocalDate today = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault());
+		LocalDate result = today.minusYears(1L);
+
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+		LocalDate dataInicial;
+		LocalDate dataFinal;
+		if(dataFinalString == null || dataFinalString.isEmpty()){
+			dataFinal = today;
+		}
+		else{
+			try{
+				dataFinal = LocalDate.parse(dataFinalString, fmt);
+			}
+			catch (DateTimeParseException e){
+				throw new IllegalArgumentException("Formato de dataInicial inválido, use yyyy-MM-dd", e);
+			}
+		}
+		if(dataInicialString == null || dataInicialString.isEmpty()){
+			dataInicial = result;
+		}
+		else {
+			try{
+				dataInicial = LocalDate.parse(dataInicialString, fmt);
+			}
+			catch (DateTimeParseException e){
+				throw new IllegalArgumentException("Formato de dataInicial inválido, use yyyy-MM-dd", e);
+			}
+		}
+
+		List<SaleSumProjection> sales = repository.findSumario(dataInicial, dataFinal);
+		List<SaleSummaryDTO> saleMinDTOS = sales.stream().map( s -> new SaleSummaryDTO(s.getSellerName(), s.getTotal())).toList();
 		return saleMinDTOS;
 	}
 

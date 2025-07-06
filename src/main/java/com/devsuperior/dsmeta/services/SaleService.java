@@ -33,7 +33,7 @@ public class SaleService {
 
 	public Page<SaleMinDTO> findRelatorio(Pageable pageable, String dataInicialString, String dataFinalString, String nomeVendedor){
 		LocalDate today = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDate result = today.minusYears(1L);
+
 
 		LocalDate dataInicial;
 		LocalDate dataFinal;
@@ -50,7 +50,7 @@ public class SaleService {
 		}
 
 		if (dataInicialString == null || dataInicialString.isEmpty()) {
-			dataInicial = result;
+			dataInicial = dataFinal.minusYears(1L);
 		} else {
 			try {
 				dataInicial = LocalDate.parse(dataInicialString, fmt);
@@ -67,7 +67,6 @@ public class SaleService {
 
 	public List<SaleSummaryDTO> findSumario(String dataInicialString, String dataFinalString){
 		LocalDate today = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault());
-		LocalDate result = today.minusYears(1L);
 
 		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -85,7 +84,7 @@ public class SaleService {
 			}
 		}
 		if(dataInicialString == null || dataInicialString.isEmpty()){
-			dataInicial = result;
+			dataInicial = dataFinal.minusYears(1L);
 		}
 		else {
 			try{
